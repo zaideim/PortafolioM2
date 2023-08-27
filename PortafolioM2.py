@@ -43,7 +43,7 @@ def predict_knn(training_data, test_point, k):
     return sorted_votes[0][0]
 
 #Exploración de datos
-#df = pd.read_csv('C:/Users/zayde/Downloads/Student_Performance.csv')
+#df = pd.read_csv('Student_Performance.csv')
 #print(df.isnull().sum()) #No hay datos faltantes
 #df.duplicated() #No hay valores duplicados
 #No hay outliers
@@ -54,7 +54,7 @@ def predict_knn(training_data, test_point, k):
 
 # Entrenamiento con datos
 data = []
-with open('C:/Users/zayde/Downloads/Student_Performance.csv', 'r') as csvfile:
+with open('Student_Performance.csv', 'r') as csvfile:
     csvreader = csv.reader(csvfile)
     next(csvreader) 
     for row in csvreader:
