@@ -33,7 +33,7 @@ El proceso de cálculo de la distancia entre instancias puede variar, pero la di
 
 Una de las ventajas del algoritmo kNN es su simplicidad y capacidad para capturar relaciones no lineales en los datos. Sin embargo, también tiene limitaciones. Puede ser computacionalmente costoso en conjuntos de datos grandes, y su rendimiento puede verse afectado por la presencia de características irrelevantes o redundantes. Además, el rendimiento puede verse influenciado por la elección adecuada de la métrica de distancia y el valor de k.
 
-Este código es una implementación de un algoritmo de Machine Learning llamado "k-Nearest Neighbors" (k-NN) sin el uso de un framework de ML.
+El código es una implementación de "k-Nearest Neighbors" sin el uso de un framework de ML.
 1. Importación de bibliotecas: El código comienza importando las bibliotecas necesarias para realizar el análisis y la implementación del algoritmo. Esto incluye la importación de las bibliotecas `csv`, `math`, `pandas`, `matplotlib.pyplot` y `sklearn.model_selection`. Estas bibliotecas se utilizarán para leer datos desde un archivo CSV, realizar cálculos matemáticos, visualizar datos y dividir los datos en conjuntos de entrenamiento y prueba.
 2. Definición de funciones:
    - `euclidean_distance`: Esta función calcula la distancia euclidiana entre dos puntos en un espacio n-dimensional. Se utiliza para medir la similitud entre los datos.
