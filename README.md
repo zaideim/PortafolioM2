@@ -1,6 +1,4 @@
 # PortafolioM2
-Implementación de una técnica de aprendizaje máquina sin el uso de un framework. 
-
 
 ## Instrucciones:
 Entregable: Implementación de una técnica de aprendizaje máquina sin el uso de un framework.
