@@ -1,6 +1,6 @@
 # PortafolioM2
 
-## Instrucciones:
+## Instrucciones
 Entregable: Implementación de una técnica de aprendizaje máquina sin el uso de un framework.
 
 1. Crea un repositorio de GitHub para este proyecto.
@@ -12,6 +12,7 @@ Entregable: Implementación de una técnica de aprendizaje máquina sin el uso d
 ## Entregable
 ### 1. Acerca del Dataset:
 El Student Performance Dataset es un conjunto de datos diseñado para examinar los factores que influyen en el rendimiento académico de los estudiantes. El conjunto de datos consta de 10.000 registros de estudiantes, cada uno de los cuales contiene información sobre diversos predictores y un índice de rendimiento.
+
 **Variables:**
 *  Horas estudiadas: El número total de horas dedicadas al estudio por cada estudiante.
 *  Puntuaciones anteriores: Las puntuaciones obtenidas por los alumnos en pruebas anteriores.
