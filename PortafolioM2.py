@@ -5,103 +5,102 @@ Created on Thu Aug 24 15:12:55 2023
 @author: zayde
 """
 
-# Momento de Retroalimentación: Módulo 2 Implementación de una técnica de aprendizaje máquina sin el uso de un framework. (Portafolio Implementación)
+#Momento de Retroalimentación: Módulo 2 Implementación de una técnica de aprendizaje máquina sin el uso de un framework. (Portafolio Implementación)
 #Zaide Islas Montiel A01751580
 #28/Agosto/2023
 
-import csv
-import math
+import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import accuracy_score
 
-# Modelo KNN
-# Distancia euclidiana entre dos puntos
-def euclidean_distance(point1, point2):
-    squared_distance = 0
-    for i in range(len(point1)):
-        squared_distance += (point1[i] - point2[i]) ** 2
-    return math.sqrt(squared_distance)
+#Entropía
+def entropy(y):
+    unique, counts = np.unique(y, return_counts=True)
+    probabilities = counts / len(y)
+    entropy = -np.sum(probabilities * np.log2(probabilities))
+    return entropy
 
-# Vecinos más cercanos
-def predict_knn(training_data, test_point, k):
-    distances = []
-    for train_point in training_data:
-        distance = euclidean_distance(train_point[:-1], test_point)
-        distances.append((train_point, distance))
-    distances.sort(key=lambda x: x[1])
+#Ganancia de información
+def information_gain(y, y_split):
+    entropy_before = entropy(y)
+    entropy_after = sum((len(y_split[i]) / len(y)) * entropy(y_split[i]) for i in range(len(y_split)))
+    return entropy_before - entropy_after
 
-    neighbors = [item[0] for item in distances[:k]]
-    class_votes = {}
-    for neighbor in neighbors:
-        label = neighbor[-1]
-        if label in class_votes:
-            class_votes[label] += 1
-        else:
-            class_votes[label] = 1
-    sorted_votes = sorted(class_votes.items(), key=lambda x: x[1], reverse=True)
-    return sorted_votes[0][0]
+#Nodo del árbol de decisión
+class DecisionNode:
+    def __init__(self, feature_index=None, threshold=None, value=None, true_branch=None, false_branch=None):
+        self.feature_index = feature_index
+        self.threshold = threshold
+        self.value = value
+        self.true_branch = true_branch
+        self.false_branch = false_branch
 
-#Exploración de datos
-#df = pd.read_csv('Student_Performance.csv')
-#print(df.isnull().sum()) #No hay datos faltantes
-#df.duplicated() #No hay valores duplicados
-#No hay outliers
-#fig, ax = plt.subplots(figsize=(10,10))
-#df.boxplot(ax=ax)
-#plt.xticks(rotation=90)
-#plt.show()
+#Construir el árbol de decisión
+def build_decision_tree(X, y, max_depth=None, min_samples_split=2):
+    num_samples, num_features = X.shape
+    unique_labels = np.unique(y)
+    if len(unique_labels) == 1 or (max_depth and max_depth == 0) or (num_samples < min_samples_split):
+        return DecisionNode(value=unique_labels[0])
+    best_feature_index = None
+    best_threshold = None
+    best_info_gain = -1
 
-# Entrenamiento con datos
-data = []
-with open('Student_Performance.csv', 'r') as csvfile:
-    csvreader = csv.reader(csvfile)
-    next(csvreader)
-    for row in csvreader:
-        hours_studied = int(row[0])
-        previous_scores = int(row[1])
-        extracurricular = 1 if row[2] == 'Yes' else 0
-        sleep_hours = int(row[3])
-        question_papers = int(row[4])
-        performance_index = float(row[5])
-        data.append([hours_studied, previous_scores, extracurricular, sleep_hours, question_papers, performance_index])
+    for feature_index in range(num_features):
+        feature_values = X[:, feature_index]
+        unique_values = np.unique(feature_values)
+        
+        for threshold in unique_values:
+            left_indices = X[:, feature_index] <= threshold
+            right_indices = X[:, feature_index] > threshold
+            current_info_gain = information_gain(y, [y[left_indices], y[right_indices]])
 
-train_data, test_data = train_test_split(data, test_size=0.3, random_state=42)
+            if current_info_gain > best_info_gain:
+                best_feature_index = feature_index
+                best_threshold = threshold
+                best_info_gain = current_info_gain
 
-# Búsqueda de hiperparámetros para encontrar la cantidad correcta de vecinos
-best_k = None
-best_accuracy = 0.0
+    if best_info_gain == 0:
+        return DecisionNode(value=unique_labels[0])
 
-for k_candidate in range(1,200):
-    current_accuracies = []
+    # Dividir el conjunto de datos
+    left_indices = X[:, best_feature_index] <= best_threshold
+    right_indices = X[:, best_feature_index] > best_threshold
 
-    for test_point in test_data:
-        predicted_label = predict_knn(train_data, test_point, k_candidate)
-        true_label = test_point[-1]
-        accuracy = 1 if predicted_label == true_label else 0
-        current_accuracies.append(accuracy)
+    true_branch = build_decision_tree(X[left_indices], y[left_indices], max_depth=max_depth - 1 if max_depth else None, min_samples_split=min_samples_split)
+    false_branch = build_decision_tree(X[right_indices], y[right_indices], max_depth=max_depth - 1 if max_depth else None, min_samples_split=min_samples_split)
 
-    current_average_accuracy = sum(current_accuracies) / len(current_accuracies)
+    return DecisionNode(feature_index=best_feature_index, threshold=best_threshold, true_branch=true_branch, false_branch=false_branch)
 
-    if current_average_accuracy > best_accuracy:
-        best_accuracy = current_average_accuracy
-        best_k = k_candidate
+#Predicciones
+def predict_tree(node, X):
+    if node.value is not None:
+        return node.value
+    if X[node.feature_index] <= node.threshold:
+        return predict_tree(node.true_branch, X)
+    else:
+        return predict_tree(node.false_branch, X)
 
-    print(f"Para k = {k_candidate}, la precisión promedio es: {current_average_accuracy}")
+df = pd.read_csv('Student_Performance.csv')
+df['Extracurricular Activities'] = df['Extracurricular Activities'].map({'Yes': 1, 'No': 0})
 
-print(f"El valor de k que produce la mayor precisión promedio es: {best_k}")
+# Separar las características (X) y la variable objetivo (y)
+X = df.drop('Performance Index', axis=1).values
+y = df['Performance Index'].values
 
-# Usar el valor óptimo de k para las predicciones finales
-final_accuracies = []
+# Entrenar el árbol de decisión
+tree = build_decision_tree(X, y, max_depth=5, min_samples_split=2)
 
-for test_point in test_data:
-    predicted_label = predict_knn(train_data, test_point, best_k)
-    true_label = test_point[-1]
-    accuracy = 1 if predicted_label == true_label else 0
-    final_accuracies.append(accuracy)
-    print(f"Para el punto {test_point}, la predicción es: {predicted_label}")
+# Realizar predicciones en el mismo conjunto de datos de entrenamiento
+predictions = [predict_tree(tree, x) for x in X]
 
-final_average_accuracy = sum(final_accuracies) / len(final_accuracies)
-print(f"Precisión promedio final: {final_average_accuracy}")
+# Calcular precisión, exactitud, recall y f1-score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+
+accuracy = accuracy_score(y, predictions)
+precision = precision_score(y, predictions, average='weighted')
+recall = recall_score(y, predictions, average='weighted')
+f1 = f1_score(y, predictions, average='weighted')
+
+print(f'Accuracy: {accuracy}')
+print(f'Precision: {precision}')
+print(f'Recall: {recall}')
+print(f'F1 Score: {f1}')
