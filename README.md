@@ -82,5 +82,4 @@ Los árboles de decisión son útiles en la toma de decisiones, la clasificació
 10. Impresión de resultados:
    - Se imprimen las métricas de evaluación (precisión, precisión ponderada, recuperación ponderada y puntuación F1 ponderada) en la consola.
 
-# Entregable 2: Uso de framework o biblioteca de aprendizaje máquina para la implementación de una solución.
 
